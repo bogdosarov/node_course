@@ -1,0 +1,1 @@
+export const DEFAULT_RESPONSE_STATUS = 200;
