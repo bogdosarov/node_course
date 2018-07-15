@@ -42,6 +42,7 @@ function runServer(req, res) {
     handler(data, ({ statusCode = DEFAULT_RESPONSE_STATUS, payload = {} }) => {
       const payloadString = JSON.stringify(payload);
 
+      res.setHeader('Content-Type', 'application/json');
       res.writeHead(statusCode);
       res.end(payloadString);
       console.log(`Response on ${trimmedPath}, with data: ${payloadString}`);
