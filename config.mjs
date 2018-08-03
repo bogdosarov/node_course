@@ -3,13 +3,15 @@ const environments = {};
 environments.develop = {
   httpPort: 3000,
   httpsPort: 3000,
-  envName: 'develop'
+  envName: 'develop',
+  filesStorageDirectory: '.filesStorage',
 }
 
 environments.production = {
   httpPort: 5000,
   httpsPort: 5001,
-  envName: 'production'
+  envName: 'production',
+  filesStorageDirectory: '.filesStorage',
 }
 
 const providedEnvironment = typeof(process.env.NODE_ENV) === 'string'
