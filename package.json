@@ -22,5 +22,8 @@
   "homepage": "https://github.com/bogdosarov/node_course#readme",
   "devDependencies": {
     "nodemon": "^1.18.3"
+  },
+  "dependencies": {
+    "lodash": "^4.17.10"
   }
 }

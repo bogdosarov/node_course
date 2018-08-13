@@ -1,3 +1,4 @@
+import some from 'lodash/some'
 import {validateEmail, validateUserPassword} from "../../helpers"
 
 export const userModel = {
@@ -26,6 +27,16 @@ export const userModel = {
 export const validateUserModel = ({data, validateFields}) => {
     const validationErrors = []
     const keysToValidate = validateFields ? validateFields : Object.keys(data)
+
+    if(!validateFields) {
+        const isWrongModel = some(Object.keys(userModel), key => keysToValidate.indexOf(key) < 0)
+
+        isWrongModel && validationErrors.push({
+            errorText: 'Invalid user model'
+        })
+
+        return validationErrors
+    }
 
     keysToValidate.map(key => {
         const modelField = userModel[key]

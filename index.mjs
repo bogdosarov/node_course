@@ -2,8 +2,7 @@ import http from 'http';
 import string_decoder from 'string_decoder';
 
 import config from './config';
-import { DEFAULT_RESPONSE_STATUS } from './constants';
-import { getParsedUrl, getQueryStringObject, getTrimmedPath } from './helpers.mjs';
+import { getParsedUrl, getQueryStringObject, getTrimmedPath, parseJsonToObject } from './helpers.mjs';
 import { responseHandlersMap as usersRsponseHandlersMap } from "./modules/user/respnseHandlers";
 
 const notFoundHandler = (data, callback) => callback({ statusCode: 404, payload: 'Page not found' });
@@ -27,9 +26,10 @@ function runServer(req, res) {
   const httpHeaders = req.headers;
   const decoder = new string_decoder.StringDecoder('utf-8');
   let buffer = '';
+  let handlerResult
 
   req.on('data', data => buffer += decoder.write(data))
-  req.on('end', () => {
+  req.on('end', async () => {
     buffer += decoder.end()
 
     const handler = getHandler({ method: httpMethodInLowerCase, path: trimmedPath })
@@ -38,18 +38,21 @@ function runServer(req, res) {
       queryStringObject,
       httpMethodInLowerCase,
       httpHeaders,
-      payload: buffer,
+      payload: parseJsonToObject(buffer),
     };
 
-    handler(data, ({ statusCode = DEFAULT_RESPONSE_STATUS, payload = {} }) => {
-      const payloadString = JSON.stringify(payload);
+    try {
+      handlerResult = await handler(data)
+    } catch (err) {
+      handlerResult = err
+    }
 
-      res.setHeader('Content-Type', 'application/json');
-      res.writeHead(statusCode);
-      res.end(payloadString);
-      console.log(`Response on ${trimmedPath}, with data: ${payloadString}`);
-    })
+    const payloadString = JSON.stringify(handlerResult.payload)
 
+    res.setHeader('Content-Type', 'application/json');
+    res.writeHead(handlerResult.code);
+    res.end(payloadString);
+    console.log(`Response on ${trimmedPath}, with data: ${payloadString}`);
   })
 }
 

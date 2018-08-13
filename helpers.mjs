@@ -10,3 +10,11 @@ export const validateEmail = email => {
 }
 
 export const validateUserPassword = password => password.length >= 8
+
+export const parseJsonToObject = str =>{
+    try{
+        return JSON.parse(str);
+    } catch(e){
+        return {};
+    }
+};

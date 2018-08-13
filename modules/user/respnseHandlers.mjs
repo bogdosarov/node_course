@@ -3,21 +3,22 @@ import { validateUserModel } from "./model";
 
 const usersStoragePath = '/users'
 
-export const handleUserCreate = userInfo => new Promise((resolve, reject) => {
-    const modelValidationErrors = validateUserModel(userInfo)
+export const handleUserCreate = ({ payload }) => new Promise((resolve, reject) => {
+
+    const modelValidationErrors = validateUserModel({ data: payload })
 
     if (modelValidationErrors.length) {
         reject({code: 422, payload: modelValidationErrors})
         return
     }
 
-    readFile({ path: usersStoragePath, fileName: userInfo.email })
+    readFile({ path: usersStoragePath, fileName: payload.email })
         .then(() => reject({
             code: 409,
-            payload: `User with mail ${userInfo.email} already exist.`
+            payload: `User with mail ${payload.email} already exist.`
         }))
         .catch(() => {
-           createFile({ path: usersStoragePath, fileName: userInfo.email, data: JSON.stringify(userInfo) })
+           createFile({ path: usersStoragePath, fileName: payload.email, data: JSON.stringify(payload) })
                .then(() => resolve({ code: 200 }))
                .catch(err => reject({ code: 400, payload: err }))
         })
