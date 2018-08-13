@@ -63,3 +63,12 @@ export const handleUserDelete = userEmail => new Promise((resolve, reject) => {
         .then(() => resolve({ code: 200 }))
         .catch(err => reject({ code: 400, payload: err }))
 })
+
+export const responseHandlersMap = {
+    users: {
+        get: handleUserRead,
+        post: handleUserCreate,
+        put: handleUserUpdate,
+        delete: handleUserDelete,
+    }
+}

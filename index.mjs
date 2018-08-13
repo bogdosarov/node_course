@@ -4,19 +4,19 @@ import string_decoder from 'string_decoder';
 import config from './config';
 import { DEFAULT_RESPONSE_STATUS } from './constants';
 import { getParsedUrl, getQueryStringObject, getTrimmedPath } from './helpers.mjs';
+import { responseHandlersMap as usersRsponseHandlersMap } from "./modules/user/respnseHandlers";
 
-import {handleUserCreate, handleUserDelete, handleUserUpdate} from "./modules/user/respnseHandlers";
-
-const helloHandler = (data, callback) => callback({ statusCode: 200, payload: 'Hi dude!' });
 const notFoundHandler = (data, callback) => callback({ statusCode: 404, payload: 'Page not found' });
 
-const routersHandlers = {
-  hello: helloHandler,
-  notFound: notFoundHandler,
+const registeredHandlers = {
+    ...usersRsponseHandlersMap,
 }
 
-const routeToHandlerMap = {
-  hello: routersHandlers.hello,
+const getHandler = ({ method, path }) => {
+  const pathHandlers = registeredHandlers[path]
+  const methodHandler = pathHandlers && registeredHandlers[path][method]
+
+  return methodHandler ? methodHandler : notFoundHandler;
 }
 
 function runServer(req, res) {
@@ -32,7 +32,7 @@ function runServer(req, res) {
   req.on('end', () => {
     buffer += decoder.end()
 
-    const handler = routeToHandlerMap[trimmedPath] ? routeToHandlerMap[trimmedPath] : routersHandlers.notFound;
+    const handler = getHandler({ method: httpMethodInLowerCase, path: trimmedPath })
     const data = {
       trimmedPath,
       queryStringObject,
@@ -58,7 +58,3 @@ const httpServer = http.createServer(function(req,res){
 });
 
 httpServer.listen(config.httpPort, () => console.log('The HTTP server is running on port '+config.httpPort))
-
-handleUserUpdate({ email: 'dsd@sd.cd', streetAddress: 'aaaaa', password: '12455444'})
-  .then(data => console.log(data))
-  .catch(err => {console.log(err)})
