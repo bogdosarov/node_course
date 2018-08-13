@@ -5,6 +5,8 @@ import config from './config';
 import { DEFAULT_RESPONSE_STATUS } from './constants';
 import { getParsedUrl, getQueryStringObject, getTrimmedPath } from './helpers.mjs';
 
+import {handleUserCreate, handleUserDelete, handleUserUpdate} from "./modules/user/respnseHandlers";
+
 const helloHandler = (data, callback) => callback({ statusCode: 200, payload: 'Hi dude!' });
 const notFoundHandler = (data, callback) => callback({ statusCode: 404, payload: 'Page not found' });
 
@@ -56,3 +58,7 @@ const httpServer = http.createServer(function(req,res){
 });
 
 httpServer.listen(config.httpPort, () => console.log('The HTTP server is running on port '+config.httpPort))
+
+handleUserUpdate({ email: 'dsd@sd.cd', streetAddress: 'aaaaa', password: '12455444'})
+  .then(data => console.log(data))
+  .catch(err => {console.log(err)})
